@@ -15,6 +15,11 @@
         </p>
         <CodeComponent :value="exampleCode()" language="typescript" />
         <h3 class="type-title">Options</h3>
+        <v-checkbox v-model="useInterface" @click="generateTypes">
+          <span>
+            Use Interface instead of Type
+          </span>
+        </v-checkbox>
         <v-checkbox v-model="useIntersectionTypes" @click="generateTypes">
           <span>
             Use Intersection Types (<code>&</code>) instead of Union Types
@@ -44,6 +49,9 @@ export default {
   components: { NavbarComponent, CodeComponent },
   inject: ["api"],
   data() {
+    const useInterface = localStorage.getItem(
+      "directus-extension-generate-types-use-interface"
+    ) !== "false";
     const useIntersectionTypes = localStorage.getItem(
       "directus-extension-generate-types-use-intersection-types"
     ) === "true";
@@ -53,6 +61,7 @@ export default {
     return {
       types: "",
       languages,
+      useInterface,
       useIntersectionTypes,
       sdk11,
       loading: false,
@@ -62,6 +71,10 @@ export default {
     generateTypes() {
       console.log(window.localStorage);
       localStorage.setItem(
+        "directus-extension-generate-types-use-interface",
+        this.useInterface
+      );
+      localStorage.setItem(
         "directus-extension-generate-types-use-intersection-types",
         this.useIntersectionTypes
       );
@@ -69,7 +82,7 @@ export default {
         "directus-extension-generate-types-sdk11",
         this.sdk11
       );
-      generateTsTypes(this.api, this.useIntersectionTypes, this.sdk11).then((types) => {
+      generateTsTypes(this.api, this.useInterface, this.useIntersectionTypes, this.sdk11).then((types) => {
         this.types = types;
         this.loading = false;
       });
